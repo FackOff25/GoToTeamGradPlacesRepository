@@ -8,8 +8,6 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var serverAddress = "0.0.0.0"
-
 func Run(configFilePath string) {
 	config, err := configReader.NewConfig(configFilePath)
 	if err != nil {
@@ -18,7 +16,7 @@ func Run(configFilePath string) {
 
 	e := echo.New()
 
-	serverAddress += ":" + config.ServerPort
+	serverAddress := config.ServerAddress + ":" + config.ServerPort
 
 	if err := configureServer(e); err != nil {
 		log.Fatalf("error while configuring server", err)

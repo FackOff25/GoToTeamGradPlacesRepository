@@ -5,7 +5,8 @@ import (
 )
 
 type Config struct {
-	ServerPort string `toml:"serverPort"`
+	ServerAddress string `toml:"serverAddres"`
+	ServerPort    string `toml:"serverPort"`
 }
 
 func NewConfig(configFilePath string) (*Config, error) {
