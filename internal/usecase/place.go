@@ -8,7 +8,7 @@ import (
 func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiPlace, error) {
 	// Google Maps API call
 	// nearbyPlaces, err := something.GetNearbyPlaces(location)
-	nearbyPlaces := make([]domain.ApiPlace, 4)
+	nearbyPlaces := make([]domain.ApiPlace, 0)
 
 	nearbyPlaces = append(nearbyPlaces,
 		domain.ApiPlace{
