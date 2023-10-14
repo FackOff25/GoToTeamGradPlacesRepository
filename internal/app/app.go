@@ -12,6 +12,10 @@ func Run() {
 
 	serverAddress := "0.0.0.0:8000"
 
+	if err := configureServer(e); err != nil {
+		log.Fatalf("error while configuring server", err)
+	}
+
 	if err := e.Start(serverAddress); err != nil {
 		log.Fatalf("error while starting server", err)
 	}
