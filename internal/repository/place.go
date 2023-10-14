@@ -8,6 +8,7 @@ import (
 func (r *Repo) GetUserPlaces(userID uuid.UUID) ([]domain.Place, error) {
 	// postgeSQL call
 
+	places := []domain.Place{}
 
-	return nil, nil
+	return places, nil
 }
