@@ -4,14 +4,21 @@ import (
 	"log"
 
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/controller/handler"
+	"github.com/FackOff25/GoToTeamGradPlacesRepository/pkg/utils/configReader"
 	"github.com/labstack/echo/v4"
 )
 
-func Run() {
+var serverAddress = "0.0.0.0"
+
+func Run(configFilePath string) {
+	config, err := configReader.NewConfig(configFilePath)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	e := echo.New()
 
-	serverAddress := "0.0.0.0:8000"
+	serverAddress += ":" + config.ServerPort
 
 	if err := configureServer(e); err != nil {
 		log.Fatalf("error while configuring server", err)
