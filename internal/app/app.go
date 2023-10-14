@@ -3,6 +3,7 @@ package app
 import (
 	"log"
 
+	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/controller/handler"
 	"github.com/labstack/echo/v4"
 )
 
@@ -23,7 +24,7 @@ func Run() {
 
 func configureServer(e *echo.Echo) error {
 
-	//e.GET("/api/v1/session/create", placesController.GetPlaces)
+	e.GET("/api/v1/places/list", handler.CreateNotImplementedResponse)
 
 	return nil
 }
