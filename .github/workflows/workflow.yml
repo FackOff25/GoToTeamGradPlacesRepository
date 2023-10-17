@@ -23,6 +23,7 @@ jobs:
           make build
           mkdir build
           cp -r ./bin/ ./build/bin
+          chmod +x -R ./build/bin
 
       - name: Move extra files
         run: |
