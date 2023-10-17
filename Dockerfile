@@ -1,8 +1,6 @@
 FROM ubuntu:latest
 
-COPY ./bin /places
-COPY ./configs /places
-
-CMD chmod +x /places/suggest
+COPY ./bin/ /places/
+COPY ./configs/ /places/
 
 WORKDIR /places
