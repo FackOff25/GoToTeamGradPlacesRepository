@@ -77,9 +77,9 @@ jobs:
           host: ${{ secrets.DEV_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SHH_PRIVATE_KEY }}
+          target: "/home/ubuntu/places_rep"
           script: |
             if [[ $(docker compose ps | grep places_rep) ]]; then
-              cd places_rep
               docker compose down
             fi
 
@@ -89,8 +89,8 @@ jobs:
           host: ${{ secrets.DEV_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SHH_PRIVATE_KEY }}
+          target: "/home/ubuntu/places_rep"
           script: |
-            cd places_rep
             docker compose up -d
 
   deploy-prod:
@@ -120,9 +120,9 @@ jobs:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SHH_PRIVATE_KEY }}
+          target: "/home/ubuntu/places_rep"
           script: |
             if [[ $(docker compose ps | grep places_rep) ]]; then
-                cd places_rep
                 docker compose down
             fi
 
@@ -132,8 +132,8 @@ jobs:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SHH_PRIVATE_KEY }}
+          target: "/home/ubuntu/places_rep"
           script: |
-            cd places_rep
             docker compose up -d
 
         
