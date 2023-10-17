@@ -28,13 +28,3 @@ run: build
 test:
 	go test ./... -cover -coverprofile=coverage.out -v
 	go tool cover -func=coverage.out
-
-lint: install-lint
-	$(GOLANGCI_BIN) run  ./...
-
-install-lint:
-	$(info #Downloading golangci-lint v${GOLANGCI_TAG})
-	tmp=$$(mktemp -d) && cd $$tmp && pwd && go mod init temp && go get -d github.com/golangci/golangci-lint/cmd/golangci-lint@v$(GOLANGCI_TAG) && \
-	go build -ldflags "-X 'main.version=$(GOLANGCI_TAG)' -X 'main.commit=test' -X 'main.date=test'" -o $(LOCAL_BIN)/golangci-lint github.com/golangci/golangci-lint/cmd/golangci-lint && \
-	rm -rf $$tmp
-	GOLANGCI_BIN:=$(LOCAL_BIN)/golangci-lint
