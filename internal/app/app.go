@@ -21,11 +21,11 @@ func Run(configFilePath string) {
 	serverAddress := config.ServerAddress + ":" + config.ServerPort
 
 	if err := configureServer(e); err != nil {
-		log.Fatalf("error while configuring server", err)
+		log.Fatalf("error while configuring server: %s", err)
 	}
 
 	if err := e.Start(serverAddress); err != nil {
-		log.Fatalf("error while starting server", err)
+		log.Fatalf("error while starting server: %s", err)
 	}
 }
 

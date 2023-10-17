@@ -48,8 +48,21 @@ jobs:
 
       - name: Test
         run: |
-          go test -race -coverpkg=./... -coverprofile=cover.out.tmp ./...
-          go tool cover -func cover.out
+          make test
+
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+
+      - name: lint
+        run: |
+          make lint
 
   deploy-dev:
     if: ${{ github.ref == 'refs/heads/dev' }}
