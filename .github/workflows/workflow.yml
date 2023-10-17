@@ -79,7 +79,8 @@ jobs:
           key: ${{ secrets.SHH_PRIVATE_KEY }}
           script: |
             if [[ $(docker compose ps | grep places_rep) ]]; then
-                docker compose down
+              cd places_rep
+              docker compose down
             fi
 
       - name: Connect and starting app
@@ -89,6 +90,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SHH_PRIVATE_KEY }}
           script: |
+            cd places_rep
             docker compose up -d
 
   deploy-prod:
@@ -120,6 +122,7 @@ jobs:
           key: ${{ secrets.SHH_PRIVATE_KEY }}
           script: |
             if [[ $(docker compose ps | grep places_rep) ]]; then
+                cd places_rep
                 docker compose down
             fi
 
@@ -130,6 +133,7 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SHH_PRIVATE_KEY }}
           script: |
+            cd places_rep
             docker compose up -d
 
         
