@@ -28,7 +28,7 @@ jobs:
         run: |
           cp ./configs/config.toml ./build/configs
           cp ./docker-compose.yml ./build
-          cp ./DockerFile ./build
+          cp ./Dockerfile ./build
 
       - name: Upload build result
         uses: actions/upload-artifact@v1
