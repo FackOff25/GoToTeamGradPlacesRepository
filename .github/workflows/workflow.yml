@@ -23,11 +23,10 @@ jobs:
           make build
           mkdir build
           cp -r ./bin/ ./build/bin
-          chmod +x -R ./build/bin
 
       - name: Move extra files
         run: |
-          cp ./configs/config.toml ./build/configs
+          cp ./configs/config.toml ./configs/config.toml
           cp ./docker-compose.yml ./build
           cp ./Dockerfile ./build
 
@@ -92,6 +91,7 @@ jobs:
           key: ${{ secrets.SHH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/places_rep
+            chmod +x -R bin
             sudo docker compose up -d
 
   deploy-prod:
@@ -135,6 +135,7 @@ jobs:
           key: ${{ secrets.SHH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/places_rep
+            chmod +x -R bin
             sudo docker compose up -d
 
         
