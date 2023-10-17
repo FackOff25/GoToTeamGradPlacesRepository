@@ -1,0 +1,11 @@
+version: "3.7"
+
+services:
+  places_rep:
+    container_name: places_rep
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "80:8000"
+    command: /places/suggest --config_file_path /places/config.toml

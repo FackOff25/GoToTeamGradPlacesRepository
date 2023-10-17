@@ -1,0 +1,141 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Go
+
+on:
+  push:
+    branches: ["dev"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+
+      - name: Build
+        run: |
+          make build
+          mkdir build
+          cp -r ./bin/ ./build/bin
+
+      - name: Move extra files
+        run: |
+          cp ./configs/config.toml ./build/config.toml
+          cp ./docker-compose.yml ./build
+          cp ./Dockerfile ./build
+
+      - name: Upload build result
+        uses: actions/upload-artifact@v1
+        with:
+          name: build
+          path: ./build
+
+  tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: 1.21
+
+      - name: Test
+        run: |
+          make test
+
+  deploy-dev:
+    if: ${{ github.ref == 'refs/heads/dev' }}
+    runs-on: ubuntu-latest
+    needs: [ "build", "tests" ]
+    steps:
+      - name: Download build
+        uses: actions/download-artifact@v1
+        with:
+          name: build
+
+      - name: Transfer build files to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SHH_PRIVATE_KEY }}
+          source: "build/*"
+          target: "/home/ubuntu/places_rep"
+          rm: true
+          strip_components: 1
+
+      - name: Connect and killing the app
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SHH_PRIVATE_KEY }}
+          script: |
+            if [[ $(docker compose ps | grep places_rep) ]]; then
+              cd /home/ubuntu/places_rep
+              sudo docker compose down
+            fi
+
+      - name: Connect and starting app
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SHH_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/places_rep
+            chmod +x -R bin
+            sudo docker compose up --build -d
+
+  deploy-prod:
+    if: ${{ github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-latest
+    needs: [ "build", "tests" ]
+    steps:
+      - name: Download build
+        uses: actions/download-artifact@v1
+        with:
+          name: build
+
+      - name: Transfer build files to server
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SHH_PRIVATE_KEY }}
+          source: "build/*"
+          target: "/home/ubuntu/places_rep"
+          rm: true
+          strip_components: 1
+
+      - name: Connect and killing the app
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SHH_PRIVATE_KEY }}
+          script: |
+            if [[ $(docker compose ps | grep places_rep) ]]; then
+              cd /home/ubuntu/places_rep
+              sudo docker compose down
+            fi
+
+      - name: Connect and starting app
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.PROD_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SHH_PRIVATE_KEY }}
+          script: |
+            cd /home/ubuntu/places_rep
+            chmod +x -R bin
+            sudo docker compose up --build -d
+
+        
