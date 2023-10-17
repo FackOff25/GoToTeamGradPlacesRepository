@@ -92,7 +92,7 @@ jobs:
           script: |
             cd /home/ubuntu/places_rep
             chmod +x -R bin
-            sudo docker compose up -d
+            sudo docker compose up --build -d
 
   deploy-prod:
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -136,6 +136,6 @@ jobs:
           script: |
             cd /home/ubuntu/places_rep
             chmod +x -R bin
-            sudo docker compose up -d
+            sudo docker compose up --build -d
 
         
