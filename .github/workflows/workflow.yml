@@ -77,7 +77,7 @@ jobs:
           host: ${{ secrets.DEV_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SHH_PRIVATE_KEY }}
-          target: "/home/ubuntu/places_rep"
+          entrypoint: "/home/ubuntu/places_rep"
           script: |
             if [[ $(docker compose ps | grep places_rep) ]]; then
               docker compose down
@@ -89,7 +89,7 @@ jobs:
           host: ${{ secrets.DEV_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SHH_PRIVATE_KEY }}
-          target: "/home/ubuntu/places_rep"
+          entrypoint: "/home/ubuntu/places_rep"
           script: |
             docker compose up -d
 
@@ -120,7 +120,7 @@ jobs:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SHH_PRIVATE_KEY }}
-          target: "/home/ubuntu/places_rep"
+          entrypoint: "/home/ubuntu/places_rep"
           script: |
             if [[ $(docker compose ps | grep places_rep) ]]; then
                 docker compose down
@@ -132,7 +132,7 @@ jobs:
           host: ${{ secrets.PROD_HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SHH_PRIVATE_KEY }}
-          target: "/home/ubuntu/places_rep"
+          entrypoint: "/home/ubuntu/places_rep"
           script: |
             docker compose up -d
 
