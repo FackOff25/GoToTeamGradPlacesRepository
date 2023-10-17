@@ -80,7 +80,7 @@ jobs:
           script: |
             if [[ $(docker compose ps | grep places_rep) ]]; then
               cd /home/ubuntu/places_rep
-              docker compose down
+              sudo docker compose down
             fi
 
       - name: Connect and starting app
@@ -91,7 +91,7 @@ jobs:
           key: ${{ secrets.SHH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/places_rep
-            docker compose up -d
+            sudo docker compose up -d
 
   deploy-prod:
     if: ${{ github.ref == 'refs/heads/main' }}
@@ -123,7 +123,7 @@ jobs:
           script: |
             if [[ $(docker compose ps | grep places_rep) ]]; then
               cd /home/ubuntu/places_rep
-              docker compose down
+              sudo docker compose down
             fi
 
       - name: Connect and starting app
@@ -134,6 +134,6 @@ jobs:
           key: ${{ secrets.SHH_PRIVATE_KEY }}
           script: |
             cd /home/ubuntu/places_rep
-            docker compose up -d
+            sudo docker compose up -d
 
         
