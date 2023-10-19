@@ -20,7 +20,7 @@ GOLANGCI_TAG=1.49.0
 build: 
 	$(GO) build -o "${BIN_FILE}" ./cmd/
 	chmod +x ${BIN_FILE}
-	echo "Build finished!"
+	"Build finished!"
 
 run: build
 	${BIN_FILE}
