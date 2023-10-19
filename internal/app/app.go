@@ -34,7 +34,7 @@ func configureServer(e *echo.Echo) error {
 	placesUsecase := usecase.UseCase{}
 	placesController := controller.PlacesController{PlacesUsecase: placesUsecase}
 
-	e.GET("/api/v1/places/list", placesController.CreatePlacesListHandler)
+	e.GET("/api/v1/places/lis", placesController.CreatePlacesListHandler)
 
 	e.GET("/api/v1/dummy", handler.CreateNotImplementedResponse)
 
