@@ -1,6 +1,6 @@
 FROM ubuntu:latest
 
 COPY ./bin/ /places/
-COPY ./config.toml /places/
+COPY ./configs/config.toml /places/
 
 WORKDIR /places
