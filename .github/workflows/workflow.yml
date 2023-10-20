@@ -108,11 +108,11 @@ jobs:
           script: |
             if [[ -f /home/ubuntu/nginx/places.conf ]]; then
                 if [[ $(diff --brief /home/ubuntu/places_rep/place.conf /home/ubuntu/nginx/places.conf) != "" ]]; then
-                  cp /home/ubuntu/places_rep/place.conf /home/ubuntu/
+                  cp /home/ubuntu/places_rep/places.conf /home/ubuntu/nginx
                   sudo systemctl restart nginx
                 fi
             else
-                cp /home/ubuntu/places_rep/place.conf /home/ubuntu/
+                cp /home/ubuntu/places_rep/places.conf /home/ubuntu/nginx
                 sudo systemctl restart nginx
             fi
 
@@ -167,14 +167,12 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SHH_PRIVATE_KEY }}
           script: |
-                if [[ -f /home/ubuntu/nginx/places.conf ]]; then
-                    if [[ $(diff --brief /home/ubuntu/places_rep/place.conf /home/ubuntu/nginx/places.conf) != "" ]]; then
-                      cp /home/ubuntu/places_rep/place.conf /home/ubuntu/
-                      sudo systemctl restart nginx
-                    fi
-                else
-                    cp /home/ubuntu/places_rep/place.conf /home/ubuntu/
-                    sudo systemctl restart nginx
+            if [[ -f /home/ubuntu/nginx/places.conf ]]; then
+                if [[ $(diff --brief /home/ubuntu/places_rep/place.conf /home/ubuntu/nginx/places.conf) != "" ]]; then
+                  cp /home/ubuntu/places_rep/places.conf /home/ubuntu/nginx
+                  sudo systemctl restart nginx
                 fi
-
-        
+            else
+                cp /home/ubuntu/places_rep/places.conf /home/ubuntu/nginx
+                sudo systemctl restart nginx
+            fi   
