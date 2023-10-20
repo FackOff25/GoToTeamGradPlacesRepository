@@ -31,6 +31,10 @@ jobs:
           cp ./docker-compose.yml ./build
           cp ./Dockerfile ./build
 
+      - name: Pack Nginx
+        run: |
+            cp ./configs/nginx.conf ./build/places.conf
+
       - name: Upload build result
         uses: actions/upload-artifact@v1
         with:
@@ -95,6 +99,23 @@ jobs:
             chmod +x -R bin
             sudo docker compose up --build -d
 
+      - name: Connect and starting app
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SHH_PRIVATE_KEY }}
+          script: |
+            if [[ -f /home/ubuntu/nginx/places.conf ]]; then
+                if [[ $(diff --brief /home/ubuntu/places_rep/place.conf /home/ubuntu/nginx/places.conf) != "" ]]; then
+                  cp /home/ubuntu/places_rep/place.conf /home/ubuntu/
+                  sudo systemctl restart nginx
+                fi
+            else
+                cp /home/ubuntu/places_rep/place.conf /home/ubuntu/
+                sudo systemctl restart nginx
+            fi
+
   deploy-prod:
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
@@ -138,5 +159,22 @@ jobs:
             cd /home/ubuntu/places_rep
             chmod +x -R bin
             sudo docker compose up --build -d
+
+      - name: Connect and starting app
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SHH_PRIVATE_KEY }}
+          script: |
+                if [[ -f /home/ubuntu/nginx/places.conf ]]; then
+                    if [[ $(diff --brief /home/ubuntu/places_rep/place.conf /home/ubuntu/nginx/places.conf) != "" ]]; then
+                      cp /home/ubuntu/places_rep/place.conf /home/ubuntu/
+                      sudo systemctl restart nginx
+                    fi
+                else
+                    cp /home/ubuntu/places_rep/place.conf /home/ubuntu/
+                    sudo systemctl restart nginx
+                fi
 
         
