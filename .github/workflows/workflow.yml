@@ -27,7 +27,7 @@ jobs:
       - name: Move extra files
         run: |
           mkdir ./build/configs
-          cp ./configs/config.toml ./build/configs/config.toml
+          cp ./configs/config.yaml ./build/configs/config.yaml
           cp ./docker-compose.yml ./build
           cp ./Dockerfile ./build
 
