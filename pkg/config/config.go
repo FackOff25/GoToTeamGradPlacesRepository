@@ -10,9 +10,10 @@ import (
 type Config struct {
 	ServerAddress string
 	ServerPort    string
+	PlacesApiHost string
 }
 
-func GetConfig(configPath string) (*Config, error) {
+func GetConfig(configPath string) (Config, error) {
 	viper.SetConfigName(filepath.Base(configPath))
 	viper.AddConfigPath(filepath.Dir(configPath))
 	viper.SetConfigType(filepath.Ext(configPath)[1:])
@@ -24,7 +25,8 @@ func GetConfig(configPath string) (*Config, error) {
 	config := Config{
 		ServerAddress: viper.GetString("server.address"),
 		ServerPort:    viper.GetString("server.port"),
+		PlacesApiHost: viper.GetString("placesApi.host"),
 	}
 
-	return &config, nil
+	return config, nil
 }

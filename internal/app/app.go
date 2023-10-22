@@ -6,7 +6,7 @@ import (
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/controller"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/controller/handler"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/usecase"
-	config "github.com/FackOff25/GoToTeamGradPlacesRepository/pkg"
+	"github.com/FackOff25/GoToTeamGradPlacesRepository/pkg/config"
 	"github.com/labstack/echo/v4"
 )
 
@@ -20,7 +20,7 @@ func Run(configFilePath string) {
 
 	e := echo.New()
 
-	if err := configureServer(e); err != nil {
+	if err := configureServer(config, e); err != nil {
 		log.Fatalf("error while configuring server: %s", err)
 	}
 
@@ -29,12 +29,14 @@ func Run(configFilePath string) {
 	}
 }
 
-func configureServer(e *echo.Echo) error {
+func configureServer(cfg config.Config, e *echo.Echo) error {
 
 	placesUsecase := usecase.UseCase{}
-	placesController := controller.PlacesController{PlacesUsecase: placesUsecase}
+	placesController := controller.PlacesController{PlacesUsecase: placesUsecase, Config: cfg}
 
 	e.GET("/api/v1/places/list", placesController.CreatePlacesListHandler)
+
+	e.GET("/api/v1/places/info", placesController.CreatePlaceInfoHandler)
 
 	e.GET("/api/v1/dummy", handler.CreateNotImplementedResponse)
 

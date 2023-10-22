@@ -1,8 +1,14 @@
 package usecase
 
 import (
+	"encoding/json"
+	"io"
+	"net/http"
+
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/domain"
+	"github.com/FackOff25/GoToTeamGradPlacesRepository/pkg/config"
 	"github.com/google/uuid"
+	"github.com/labstack/gommon/log"
 )
 
 func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiPlace, error) {
@@ -144,4 +150,28 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 	)
 
 	return nearbyPlaces, nil
+}
+
+func (uc *UseCase) GetInfoOnPlace(cfg config.Config, placeId string, fields []string) (domain.AdvancedApiPlace, error) {
+	request := cfg.PlacesApiHost + "json" + "?place_id=" + placeId
+	if len(fields) != 0 {
+		request += "&fields="
+		for _, k := range fields {
+			request += k + ","
+		}
+		request = request[:len(request)-1] //cutting last comma
+	}
+
+	resp, err := http.Get(request)
+	log.Infof("%s", resp)
+	if err != nil {
+		return domain.AdvancedApiPlace{}, err
+	}
+
+	data, _ := io.ReadAll(resp.Body)
+	log.Infof("%s", data)
+	var place domain.AdvancedApiPlace
+	json.Unmarshal(data, &place)
+
+	return place, nil
 }
