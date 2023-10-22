@@ -6,7 +6,7 @@ import (
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/app"
 )
 
-const _DEFAULT_CONFIG_FILE_PATH = "configs/config.toml"
+const _DEFAULT_CONFIG_FILE_PATH = "configs/config.yaml"
 
 var configFilePath string
 

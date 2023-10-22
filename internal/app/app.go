@@ -6,19 +6,19 @@ import (
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/controller"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/controller/handler"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/usecase"
-	"github.com/FackOff25/GoToTeamGradPlacesRepository/pkg/utils/configReader"
+	config "github.com/FackOff25/GoToTeamGradPlacesRepository/pkg"
 	"github.com/labstack/echo/v4"
 )
 
 func Run(configFilePath string) {
-	config, err := configReader.NewConfig(configFilePath)
+	config, err := config.GetConfig(configFilePath)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	e := echo.New()
-
 	serverAddress := config.ServerAddress + ":" + config.ServerPort
+
+	e := echo.New()
 
 	if err := configureServer(e); err != nil {
 		log.Fatalf("error while configuring server: %s", err)
