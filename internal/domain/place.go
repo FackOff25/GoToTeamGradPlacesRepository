@@ -21,7 +21,7 @@ type ApiPlace struct {
 	// Types          []string  `json:"types,omitempty"`
 }
 
-type AdvancedApiPlace struct {
+type PlaceInfo struct {
 	Id             uuid.UUID   `json:"id,omitempty"`
 	Cover          string      `json:"cover,omitempty"`
 	Rating         float32     `json:"rating,omitempty"`
@@ -30,6 +30,9 @@ type AdvancedApiPlace struct {
 	Location       ApiLocation `json:"location,omitempty"`
 	PlaceId        string      `json:"place_id,omitempty"`
 	ApiRatingCount int         `json:"user_ratings_total,omitempty"`
+	Description	   int	       `json:"description,omitempty"`
+	Photos         []string    `json:"photos,omitempty"`
+    Address        string      `json:"address,omitempty"`
 }
 
 type Place struct {
