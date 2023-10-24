@@ -151,21 +151,6 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 	return nearbyPlaces, nil
 }
 
-func (uc *UseCase) GetPhoto(cfg config.Config, photoReference string) (interface{}, error) {
-	request := cfg.PlacesApiHost + "place/photo/" + "json" + "?photo_reference=" + photoReference
-
-	resp, err := http.Get(request)
-	if err != nil {
-		return nil, err
-	}
-
-	data, _ := io.ReadAll(resp.Body)
-	var place map[string]interface{}
-	json.Unmarshal(data, &place)
-
-	return place, nil
-}
-
 func (uc *UseCase) GetInfoOnPlace(cfg config.Config, placeId string, fields []string) (interface{}, error) {
 	request := cfg.PlacesApiHost + "place/details/" + "json" + "?place_id=" + placeId
 	request += "&language=ru"
