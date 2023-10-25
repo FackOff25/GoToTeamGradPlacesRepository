@@ -5,7 +5,6 @@ name: Go
 
 on:
   push:
-    branches: [ "dev", "master" ]
 
 jobs:
   build:
@@ -26,9 +25,14 @@ jobs:
 
       - name: Move extra files
         run: |
-          cp ./configs/config.toml ./build/config.toml
+          mkdir ./build/configs
+          cp ./configs/config.yaml ./build/configs/config.yaml
           cp ./docker-compose.yml ./build
           cp ./Dockerfile ./build
+
+      - name: Pack Nginx
+        run: |
+            cp ./configs/nginx.conf ./build/places.conf
 
       - name: Upload build result
         uses: actions/upload-artifact@v1
@@ -94,6 +98,23 @@ jobs:
             chmod +x -R bin
             sudo docker compose up --build -d
 
+      - name: Connect and starting app
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SHH_PRIVATE_KEY }}
+          script: |
+            if [[ -f /home/ubuntu/nginx/places.conf ]]; then
+                if [[ $(diff --brief /home/ubuntu/places_rep/place.conf /home/ubuntu/nginx/places.conf) != "" ]]; then
+                  cp /home/ubuntu/places_rep/places.conf /home/ubuntu/nginx
+                  sudo systemctl restart nginx
+                fi
+            else
+                cp /home/ubuntu/places_rep/places.conf /home/ubuntu/nginx
+                sudo systemctl restart nginx
+            fi
+
   deploy-prod:
     if: ${{ github.ref == 'refs/heads/master' }}
     runs-on: ubuntu-latest
@@ -138,4 +159,19 @@ jobs:
             chmod +x -R bin
             sudo docker compose up --build -d
 
-        
+      - name: Connect and starting app
+        uses: appleboy/ssh-action@v0.1.6
+        with:
+          host: ${{ secrets.DEV_HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SHH_PRIVATE_KEY }}
+          script: |
+            if [[ -f /home/ubuntu/nginx/places.conf ]]; then
+                if [[ $(diff --brief /home/ubuntu/places_rep/place.conf /home/ubuntu/nginx/places.conf) != "" ]]; then
+                  cp /home/ubuntu/places_rep/places.conf /home/ubuntu/nginx
+                  sudo systemctl restart nginx
+                fi
+            else
+                cp /home/ubuntu/places_rep/places.conf /home/ubuntu/nginx
+                sudo systemctl restart nginx
+            fi   

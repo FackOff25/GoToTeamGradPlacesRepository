@@ -1,7 +1,12 @@
 package usecase
 
 import (
+	"encoding/json"
+	"io"
+	"net/http"
+
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/domain"
+	"github.com/FackOff25/GoToTeamGradPlacesRepository/pkg/config"
 	"github.com/google/uuid"
 )
 
@@ -19,8 +24,10 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 			Rating:      4.7,
 			Name:        "Московский Кремль",
 			PlaceId:     "AF1QipMImrKNC6PKPQrUEI4GvXoqyhF05Pbk7CkYNXZ1",
-			Lat:         55.7520233,
-			Lng:         37.6174994,
+			Location: domain.ApiLocation{
+				Lat: 55.7520233,
+				Lng: 37.6174994,
+			},
 		},
 		// 2
 		domain.ApiPlace{
@@ -30,9 +37,11 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 			Rating:      4.8,
 			Name:        "Красная площадь",
 			PlaceId:     "AF1QipOHIILw9yVALfLKF4e2sREloOqS3WfPxDxGykRE",
-			Lat:         55.753544,
-			Lng:         37.621202,
-		}, 
+			Location: domain.ApiLocation{
+				Lat: 55.753544,
+				Lng: 37.621202,
+			},
+		},
 		// 3
 		domain.ApiPlace{
 			Id:          uuid.New(),
@@ -41,8 +50,10 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 			Rating:      4.7,
 			Name:        "Храм Христа Спасителя",
 			PlaceId:     "AF1QipMLko3fPi5q_F3w5UbX9",
-			Lat:         55.7446368,
-			Lng:         37.6054959 ,
+			Location: domain.ApiLocation{
+				Lat: 55.7446368,
+				Lng: 37.6054959,
+			},
 		},
 		// 4
 		domain.ApiPlace{
@@ -52,8 +63,10 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 			Rating:      4.6,
 			Name:        "Старый Арбат",
 			PlaceId:     "AF1QipMQhmZY2zME",
-			Lat:         55.7500877,
-			Lng:         37.5936813,
+			Location: domain.ApiLocation{
+				Lat: 55.7500877,
+				Lng: 37.5936813,
+			},
 		},
 		// 5
 		domain.ApiPlace{
@@ -63,8 +76,10 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 			Rating:      4.5,
 			Name:        "Парк Зарядье",
 			PlaceId:     "AF1QipPW4xJKa8dLJKGV7d9aBf9pQ6MYgyQLQy5CBAO5",
-			Lat:         55.751188,
-			Lng:         37.627939,
+			Location: domain.ApiLocation{
+				Lat: 55.751188,
+				Lng: 37.627939,
+			},
 		},
 		// 6
 		domain.ApiPlace{
@@ -74,8 +89,10 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 			Rating:      4.7,
 			Name:        "Москва-Сити",
 			PlaceId:     "AF1QipNo74P1vCnj4cSODwRX5wwqgnvw7S29sZ0ylk",
-			Lat:         55.749451,
-			Lng:         37.542824,
+			Location: domain.ApiLocation{
+				Lat: 55.749451,
+				Lng: 37.542824,
+			},
 		},
 		// 7
 		domain.ApiPlace{
@@ -85,8 +102,10 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 			Rating:      4.7,
 			Name:        "Воробьевы горы",
 			PlaceId:     "AF1QipOH6j96KF6yl8YgcmTVuIY98zdERHnHm_O2Hxxm",
-			Lat:         55.711422,
-			Lng:         37.544391,
+			Location: domain.ApiLocation{
+				Lat: 55.711422,
+				Lng: 37.544391,
+			},
 		},
 		// 8
 		domain.ApiPlace{
@@ -96,8 +115,10 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 			Rating:      4.7,
 			Name:        "ВДНХ",
 			PlaceId:     "AF1QipPqUNGOF9ej8E8s2NaHTueeqC3dzzrZwNN3UGjT",
-			Lat:         55.826685,
-			Lng:         37.638764,
+			Location: domain.ApiLocation{
+				Lat: 55.826685,
+				Lng: 37.638764,
+			},
 		},
 		// 9
 		domain.ApiPlace{
@@ -107,8 +128,10 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 			Rating:      4.8,
 			Name:        "Третьяковская галерея",
 			PlaceId:     "kJE1df0i2UAZbmGMg7Fyyh",
-			Lat:         55.741333, 
-			Lng:         37.620555,
+			Location: domain.ApiLocation{
+				Lat: 55.741333,
+				Lng: 37.620555,
+			},
 		},
 		// 10
 		domain.ApiPlace{
@@ -118,10 +141,35 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 			Rating:      4.4,
 			Name:        "Московский зоопарк",
 			PlaceId:     "AF1QipNAytHSPl5oAcFjI2921AdQnmgULzTevdpPz0NJ",
-			Lat:         55.762394,
-			Lng:         37.578684,
+			Location: domain.ApiLocation{
+				Lat: 55.762394,
+				Lng: 37.578684,
+			},
 		},
 	)
 
 	return nearbyPlaces, nil
+}
+
+func (uc *UseCase) GetInfoOnPlace(cfg config.Config, placeId string, fields []string) (interface{}, error) {
+	request := cfg.PlacesApiHost + "place/details/" + "json" + "?place_id=" + placeId
+	request += "&language=ru"
+	if len(fields) != 0 {
+		request += "&fields="
+		for _, k := range fields {
+			request += k + ","
+		}
+		request = request[:len(request)-1] //cutting last comma
+	}
+
+	resp, err := http.Get(request)
+	if err != nil {
+		return nil, err
+	}
+
+	data, _ := io.ReadAll(resp.Body)
+	var place map[string]interface{}
+	json.Unmarshal(data, &place)
+
+	return place, nil
 }
