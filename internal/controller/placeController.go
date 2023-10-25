@@ -130,6 +130,11 @@ func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 
 	if err != nil {
 		log.Print(err)
+		if err.Error() == googleApi.STATUS_NOT_FOUND || err.Error() == googleApi.STATUS_INVALID_REQUEST  {
+			return echo.ErrNotFound
+		}
+
+		return echo.NewHTTPError(500, "INTERNAL")
 	}
 
 	place, err := pc.formPlaceInfo(placeInterface)
