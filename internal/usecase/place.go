@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"errors"
 
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/domain"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/pkg/config"
+	"github.com/FackOff25/GoToTeamGradGoLibs/googleApi"
 	"github.com/google/uuid"
 )
 
@@ -151,7 +153,7 @@ func (uc *UseCase) GetNearbyPlaces(id uuid.UUID, location string) ([]domain.ApiP
 	return nearbyPlaces, nil
 }
 
-func (uc *UseCase) GetInfoOnPlace(cfg config.Config, placeId string, fields []string) (interface{}, error) {
+func (uc *UseCase) GetInfoOnPlace(cfg config.Config, placeId string, fields []string) (googleApi.Place, error) {
 	request := cfg.PlacesApiHost + "place/details/" + "json" + "?place_id=" + placeId
 	request += "&language=ru"
 	if len(fields) != 0 {
@@ -164,12 +166,16 @@ func (uc *UseCase) GetInfoOnPlace(cfg config.Config, placeId string, fields []st
 
 	resp, err := http.Get(request)
 	if err != nil {
-		return nil, err
+		return googleApi.Place{}, err
 	}
 
 	data, _ := io.ReadAll(resp.Body)
-	var place map[string]interface{}
-	json.Unmarshal(data, &place)
+	var result googleApi.PlaceAnswer
+	json.Unmarshal(data, &result)
 
-	return place, nil
+	if result.Status != googleApi.STATUS_OK {
+		return googleApi.Place{}, errors.New(result.Status)
+	}
+
+	return result.Result, nil
 }
