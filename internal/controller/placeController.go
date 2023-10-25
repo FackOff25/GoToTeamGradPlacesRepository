@@ -1,16 +1,18 @@
 package controller
 
 import (
-	"errors"
 	"net/http"
-
+	"strconv"
 	"log"
+	"encoding/json"
+	"bytes"
 
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/domain"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/usecase"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/pkg/config"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
+	"github.com/FackOff25/GoToTeamGradGoLibs/googleApi"
 )
 
 type GoogleParams struct {
@@ -75,117 +77,35 @@ func (pc *PlacesController) CreatePlacesListHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, places)
 }
 
-func (pc *PlacesController) formPlaceInfo(rawInfo interface{}) (domain.PlaceInfo, error) {
-	googleParams := getGoogleParams()
+func (pc *PlacesController) formPlaceInfo(result googleApi.Place) (domain.PlaceInfo, error) {
+	uuid, _ := uuid.NewUUID() //TODO: replace with actual uuid
 
-	_, ok := rawInfo.(map[string]interface{})["result"]
-	if !ok {
-		return domain.PlaceInfo{}, errors.New("Bad answer")
-	}
-
-	infoMap := rawInfo.(map[string]interface{})["result"].(map[string]interface{})
-
-	//log.Printf("%#v", infoMap[googleParams.WorkingHours])
-
-	var name string
-	nameI, ok := infoMap[googleParams.Name]
-	if ok {
-		name = nameI.(string)
-	}
-
-	var rating float64
-	ratingI, ok := infoMap[googleParams.Rating]
-	if ok {
-		rating = ratingI.(float64)
-	}
-
-	var ratingCount int
-	ratingCountI, ok := infoMap[googleParams.RatingCount]
-	if ok {
-		ratingCount = int(ratingCountI.(float64))
-	}
-
-	location := domain.ApiLocation{}
-	geometry, geomOk := infoMap[googleParams.Geometry]
-	if geomOk {
-		geomMap := geometry.(map[string]interface{})
-		locationMap := geomMap[googleParams.Location].(map[string]interface{})
-		location = domain.ApiLocation{
-			Lat: locationMap[googleParams.Lat].(float64),
-			Lng: locationMap[googleParams.Lng].(float64),
-		}
-	}
-
-	var address string
-	addressI, ok := infoMap[googleParams.Address]
-	if ok {
-		address = addressI.(string)
-	}
-
-	var description string
-	editorial_summaryI, ok := infoMap[googleParams.Summary]
-	if ok {
-		editorial_summary := editorial_summaryI.(map[string]interface{})
-		description = editorial_summary[googleParams.Description].(string)
-
-	}
-
-	var workingHours []string
-	openingHoursI, ok := infoMap[googleParams.WorkingHours]
-	if ok {
-		openingHours := openingHoursI.(map[string]interface{})
-		weekdayTextI, ok := openingHours[googleParams.WorkingHoursWeekday]
-		if ok {
-			weekdayTextSliceI := weekdayTextI.([]interface{})
-			workingHours = make([]string, len(weekdayTextSliceI))
-			for i, v := range weekdayTextSliceI {
-				workingHours[i] = v.(string)
-			}
-		}
+	location := domain.ApiLocation{
+		Lat: result.Geometry.Location.Lat,
+		Lng: result.Geometry.Location.Lng,
 	}
 
 	var photos []string
-	photosI, ok := infoMap[googleParams.Photos]
-	if ok {
-		photosSliceI := photosI.([]interface{})
-		photos = make([]string, len(photosSliceI))
-		for i, photoI := range photosSliceI {
-			photo := photoI.(map[string]interface{})
-			photos[i] = pc.Config.PlacesApiHost + "place/photo?photo_reference=" + photo["photo_reference"].(string) //now the links return 403
-		}
+	for _, photoStruct := range result.Photos {
+		reference := photoStruct.Reference
+		url := pc.Config.PlacesApiHost + "place/photo?maxwidth=" + strconv.FormatInt(photoStruct.Width, 10) + "&photo_reference=" + reference
+		photos = append(photos, url)  //now the links return 403
 	}
-
-	var types []string
-	typesI, ok := infoMap[googleParams.Types]
-	if ok {
-		typesSliceI := typesI.([]interface{})
-		log.Printf("%#v", typesSliceI)
-		for _, v := range typesSliceI {
-			tags := getTags()
-			tag, ok := tags[v.(string)]
-			if ok {
-				types = append(types, tag)
-			}
-		}
-	}
-
-	uuid, _ := uuid.NewUUID() //TODO: replace with actual uuid
 
 	return domain.PlaceInfo{
 		Id:             uuid,
-		Name:           name,
-		Rating:         rating,
+		Name:           result.Name,
+		Rating:         result.Rating,
 		RatingCount:    0,
 		Location:       location,
-		ApiRatingCount: ratingCount,
-		Description:    description,
-		Address:        address,
-		WorkingHours:   workingHours,
+		ApiRatingCount: result.RatingCount,
+		Description:    result.Summary.Overview,
+		Address:        result.Address,
+		WorkingHours:   result.OpeningHours.WeekTimetable,
 		Photos:         photos,
-		Tags:           types,
+		Tags:           result.Types,
 	}, nil
 }
-
 func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 	defer c.Request().Body.Close()
 
@@ -213,6 +133,11 @@ func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 
 	if err != nil {
 		log.Print(err)
+		if err.Error() == googleApi.STATUS_NOT_FOUND || err.Error() == googleApi.STATUS_INVALID_REQUEST  {
+			return echo.ErrNotFound
+		}
+
+		return echo.NewHTTPError(500, "INTERNAL")
 	}
 
 	place, err := pc.formPlaceInfo(placeInterface)
@@ -220,5 +145,10 @@ func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 
-	return c.JSON(http.StatusOK, place)
+	resBodyBytes := new(bytes.Buffer)
+	encoder := json.NewEncoder(resBodyBytes)
+	encoder.SetEscapeHTML(false)
+	encoder.Encode(place)
+
+	return c.JSONBlob(http.StatusOK, resBodyBytes.Bytes())
 }
