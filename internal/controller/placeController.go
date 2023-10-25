@@ -1,18 +1,18 @@
 package controller
 
 import (
+	"bytes"
+	"encoding/json"
+	"log"
 	"net/http"
 	"strconv"
-	"log"
-	"encoding/json"
-	"bytes"
 
+	"github.com/FackOff25/GoToTeamGradGoLibs/googleApi"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/domain"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/usecase"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/pkg/config"
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	"github.com/FackOff25/GoToTeamGradGoLibs/googleApi"
 )
 
 type GoogleParams struct {
@@ -89,21 +89,21 @@ func (pc *PlacesController) formPlaceInfo(result googleApi.Place) (domain.PlaceI
 	for _, photoStruct := range result.Photos {
 		reference := photoStruct.Reference
 		url := pc.Config.PlacesApiHost + "place/photo?maxwidth=" + strconv.FormatInt(photoStruct.Width, 10) + "&photo_reference=" + reference
-		photos = append(photos, url)  //now the links return 403
+		photos = append(photos, url) //now the links return 403
 	}
 
 	return domain.PlaceInfo{
-		Id:             uuid,
-		Name:           result.Name,
-		Rating:         result.Rating,
-		RatingCount:    0,
-		Location:       location,
-		ApiRatingCount: result.RatingCount,
-		Description:    result.Summary.Overview,
-		Address:        result.Address,
-		WorkingHours:   result.OpeningHours.WeekTimetable,
-		Photos:         photos,
-		Tags:           result.Types,
+		Id:          uuid,
+		Name:        result.Name,
+		Rating:      result.Rating,
+		RatingCount: result.RatingCount,
+		Location:    location,
+		//ApiRatingCount: result.RatingCount,
+		Description:  result.Summary.Overview,
+		Address:      result.Address,
+		WorkingHours: result.OpeningHours.WeekTimetable,
+		Photos:       photos,
+		Tags:         result.Types,
 	}, nil
 }
 func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
@@ -133,7 +133,7 @@ func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 
 	if err != nil {
 		log.Print(err)
-		if err.Error() == googleApi.STATUS_NOT_FOUND || err.Error() == googleApi.STATUS_INVALID_REQUEST  {
+		if err.Error() == googleApi.STATUS_NOT_FOUND || err.Error() == googleApi.STATUS_INVALID_REQUEST {
 			return echo.ErrNotFound
 		}
 
