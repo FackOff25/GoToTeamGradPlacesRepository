@@ -2,8 +2,10 @@ package controller
 
 import (
 	"net/http"
-
+	"strconv"
 	"log"
+	"encoding/json"
+	"bytes"
 
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/domain"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/usecase"
@@ -86,7 +88,8 @@ func (pc *PlacesController) formPlaceInfo(result googleApi.Place) (domain.PlaceI
 	var photos []string
 	for _, photoStruct := range result.Photos {
 		reference := photoStruct.Reference
-		photos = append(photos, pc.Config.PlacesApiHost + "place/photo?photo_reference=" + reference)  //now the links return 403
+		url := pc.Config.PlacesApiHost + "place/photo?maxwidth=" + strconv.FormatInt(photoStruct.Width, 10) + "&photo_reference=" + reference
+		photos = append(photos, url)  //now the links return 403
 	}
 
 	return domain.PlaceInfo{
@@ -142,5 +145,10 @@ func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 
-	return c.JSON(http.StatusOK, place)
+	resBodyBytes := new(bytes.Buffer)
+	encoder := json.NewEncoder(resBodyBytes)
+	encoder.SetEscapeHTML(false)
+	encoder.Encode(place)
+
+	return c.JSONBlob(http.StatusOK, resBodyBytes.Bytes())
 }
