@@ -2,13 +2,13 @@ package usecase
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
-	"errors"
 
+	"github.com/FackOff25/GoToTeamGradGoLibs/googleApi"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/domain"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/pkg/config"
-	"github.com/FackOff25/GoToTeamGradGoLibs/googleApi"
 	"github.com/google/uuid"
 )
 
@@ -164,7 +164,14 @@ func (uc *UseCase) GetInfoOnPlace(cfg config.Config, placeId string, fields []st
 		request = request[:len(request)-1] //cutting last comma
 	}
 
-	resp, err := http.Get(request)
+	client := &http.Client{}
+	req, err := http.NewRequest("GET", request, nil)
+	if err != nil {
+		return googleApi.Place{}, err
+	}
+
+	req.Header.Set("Proxy-Header", "go-explore")
+	resp, err := client.Do(req)
 	if err != nil {
 		return googleApi.Place{}, err
 	}
