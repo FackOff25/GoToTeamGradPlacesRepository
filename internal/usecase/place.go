@@ -167,7 +167,7 @@ func (uc *UseCase) GetInfoOnPlace(cfg config.Config, placeId string, fields []st
 	client := &http.Client{}
 	req, err := http.NewRequest("GET", request, nil)
 	if err != nil {
-		return googleApi.Place{}, err
+		return googleApi.Place{}, errors.New("Error while creating request: " + err.Error())
 	}
 
 	req.Header.Set("Proxy-Header", "go-explore")
