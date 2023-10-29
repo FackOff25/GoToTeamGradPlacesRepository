@@ -3,9 +3,10 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
-	"log"
 	"net/http"
 	"strconv"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/FackOff25/GoToTeamGradGoLibs/googleApi"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/domain"
@@ -132,7 +133,7 @@ func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 	placeInterface, err := pc.PlacesUsecase.GetInfoOnPlace(pc.Config, placeId, fields)
 
 	if err != nil {
-		log.Print(err)
+		log.Errorf("Error in GetInfoOnPlace: %s", err)
 		if err.Error() == googleApi.STATUS_NOT_FOUND || err.Error() == googleApi.STATUS_INVALID_REQUEST {
 			return echo.ErrNotFound
 		}
@@ -142,6 +143,7 @@ func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 
 	place, err := pc.formPlaceInfo(placeInterface)
 	if err != nil {
+		log.Errorf("Error getting info from googleApi: %s", err)
 		return echo.ErrNotFound
 	}
 

@@ -11,6 +11,10 @@ type Config struct {
 	ServerAddress string
 	ServerPort    string
 	PlacesApiHost string
+	LogAppName    string
+	LogLevel      int
+	LogFormat     string
+	LogOutput     string
 }
 
 func GetConfig(configPath string) (Config, error) {
@@ -26,6 +30,10 @@ func GetConfig(configPath string) (Config, error) {
 		ServerAddress: viper.GetString("server.address"),
 		ServerPort:    viper.GetString("server.port"),
 		PlacesApiHost: viper.GetString("placesApi.host"),
+		LogAppName:    "Places",
+		LogLevel:      viper.GetInt("logger.level"),
+		LogFormat:     viper.GetString("logger.format"),
+		LogOutput:     viper.GetString("logger.output"),
 	}
 
 	return config, nil
