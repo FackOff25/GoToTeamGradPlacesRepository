@@ -3,3 +3,8 @@ server:
   port: "80"
 placesApi:
   host: http://go-explore.online/proxy/maps/api/
+logger:
+  format: plain
+  level: 6
+  name: place
+  output: ./log/places.log

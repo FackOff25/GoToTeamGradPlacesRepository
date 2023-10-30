@@ -9,3 +9,5 @@ services:
     ports:
       - "8000:80"
     command: /places/suggest --config_file_path /places/config.yaml
+    volumes:
+      - ../log/places:/places/log
