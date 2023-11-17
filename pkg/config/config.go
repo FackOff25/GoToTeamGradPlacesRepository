@@ -15,6 +15,12 @@ type Config struct {
 	LogLevel      int
 	LogFormat     string
 	LogOutput     string
+
+	DBurl      string
+	DBport     string
+	DBuser     string
+	DBpassword string
+	DBname     string
 }
 
 func GetConfig(configPath string) (Config, error) {
@@ -34,6 +40,12 @@ func GetConfig(configPath string) (Config, error) {
 		LogLevel:      viper.GetInt("logger.level"),
 		LogFormat:     viper.GetString("logger.format"),
 		LogOutput:     viper.GetString("logger.output"),
+
+		DBurl:      viper.GetString("db.url"),
+		DBport:     viper.GetString("db.port"),
+		DBuser:     viper.GetString("db.user"),
+		DBpassword: viper.GetString("db.password"),
+		DBname:     viper.GetString("db.name"),
 	}
 
 	return config, nil
