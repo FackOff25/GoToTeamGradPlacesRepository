@@ -8,4 +8,9 @@ logger:
   level: 4
   name: place
   output: ./log/places.log
-  
+db:
+  url: "@DB_URL@"
+  port: "@DB_PORT@"
+  user: "@DB_USER@"
+  password: "@DB_PASSWORD@"
+  name: "@DB_NAME@"
