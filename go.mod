@@ -3,7 +3,7 @@ module github.com/FackOff25/GoToTeamGradPlacesRepository
 go 1.21.3
 
 require (
-	github.com/FackOff25/GoToTeamGradGoLibs v1.1.3
+	github.com/FackOff25/GoToTeamGradGoLibs v1.1.5
 	github.com/google/uuid v1.3.1
 	github.com/jackc/pgx/v5 v5.4.3
 	github.com/labstack/echo/v4 v4.11.2

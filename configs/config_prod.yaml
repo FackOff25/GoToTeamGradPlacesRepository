@@ -2,7 +2,7 @@ server:
   address: "0.0.0.0"
   port: "80"
 placesApi:
-  host: http://go-explore.ru/proxy/maps/api/
+  host: http://go-explore.ru/proxy/maps/maps/api/
 logger:
   format: plain
   level: 4

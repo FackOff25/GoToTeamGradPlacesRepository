@@ -8,6 +8,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/FackOff25/GoToTeamGradGoLibs/categories"
 	"github.com/FackOff25/GoToTeamGradGoLibs/googleApi"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/domain"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/usecase"
@@ -93,6 +94,15 @@ func (pc *PlacesController) formPlaceInfo(result googleApi.Place) (domain.PlaceI
 		photos = append(photos, url) //now the links return 403
 	}
 
+	var tags []string
+	tagsMap := categories.GetCategoriesMap()
+	for _, v := range result.Types {
+		tag, ok := tagsMap[v]
+		if ok {
+			tags = append(tags, tag)
+		}
+	}
+
 	return domain.PlaceInfo{
 		Id:          uuid,
 		Name:        result.Name,
@@ -104,7 +114,7 @@ func (pc *PlacesController) formPlaceInfo(result googleApi.Place) (domain.PlaceI
 		Address:      result.Address,
 		WorkingHours: result.OpeningHours.WeekTimetable,
 		Photos:       photos,
-		Tags:         result.Types,
+		Tags:         tags,
 	}, nil
 }
 func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
