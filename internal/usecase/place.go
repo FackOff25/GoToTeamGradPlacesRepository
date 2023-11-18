@@ -3,7 +3,6 @@ package usecase
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 
