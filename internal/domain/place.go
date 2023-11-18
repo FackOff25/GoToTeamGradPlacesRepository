@@ -4,6 +4,11 @@ import (
 	"github.com/google/uuid"
 )
 
+const (
+	ReactionLike    = "like"
+	ReactionVisited = "visited"
+)
+
 type ApiLocation struct {
 	Lat float64 `json:"lat,omitempty"`
 	Lng float64 `json:"lng,omitempty"`
@@ -22,7 +27,7 @@ type ApiPlace struct {
 }
 
 type PlaceInfo struct {
-	Id          uuid.UUID   `json:"id,omitempty"`
+	Id          string      `json:"id,omitempty"`
 	Cover       string      `json:"cover,omitempty"`
 	Rating      float64     `json:"rating,omitempty"`
 	RatingCount int64       `json:"rating_count,omitempty"`
@@ -35,6 +40,7 @@ type PlaceInfo struct {
 	Address      string   `json:"address,omitempty"`
 	WorkingHours []string `json:"workingHours,omitempty"`
 	Tags         []string `json:"tags,omitempty"`
+	Reactions    []string `json:"reactions,omitempty"`
 }
 
 type Place struct {

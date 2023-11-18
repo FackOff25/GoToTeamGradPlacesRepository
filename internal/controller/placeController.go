@@ -3,9 +3,11 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"html"
 	"net/http"
 	"strconv"
 
+	"github.com/jackc/pgx/v5"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/FackOff25/GoToTeamGradGoLibs/categories"
@@ -16,6 +18,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
+
+const uuidHeader = "X-Uuid"
 
 type GoogleParams struct {
 	Name                string
@@ -79,9 +83,7 @@ func (pc *PlacesController) CreatePlacesListHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, places)
 }
 
-func (pc *PlacesController) formPlaceInfo(result googleApi.Place) (domain.PlaceInfo, error) {
-	uuid, _ := uuid.NewUUID() //TODO: replace with actual uuid
-
+func (pc *PlacesController) formPlaceInfo(result googleApi.Place, placeId, userId string) (domain.PlaceInfo, error) {
 	location := domain.ApiLocation{
 		Lat: result.Geometry.Location.Lat,
 		Lng: result.Geometry.Location.Lng,
@@ -103,6 +105,13 @@ func (pc *PlacesController) formPlaceInfo(result googleApi.Place) (domain.PlaceI
 		}
 	}
 
+	var uuid string
+	var reactions []string
+	uuid, reactions, err := pc.PlacesUsecase.GetUserReaction(userId, placeId)
+	if err != nil && err != pgx.ErrNoRows {
+		log.Error("getting reaction from db error: ", err)
+	}
+
 	return domain.PlaceInfo{
 		Id:          uuid,
 		Name:        result.Name,
@@ -115,10 +124,14 @@ func (pc *PlacesController) formPlaceInfo(result googleApi.Place) (domain.PlaceI
 		WorkingHours: result.OpeningHours.WeekTimetable,
 		Photos:       photos,
 		Tags:         tags,
+		Reactions:    reactions,
 	}, nil
 }
+
 func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	id := html.EscapeString(c.Request().Header.Get("X-UUID"))
 
 	if !c.QueryParams().Has("place_id") {
 		return echo.ErrBadRequest
@@ -151,7 +164,7 @@ func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 		return echo.NewHTTPError(500, "INTERNAL")
 	}
 
-	place, err := pc.formPlaceInfo(placeInterface)
+	place, err := pc.formPlaceInfo(placeInterface, placeId, id)
 	if err != nil {
 		log.Errorf("Error getting info from googleApi: %s", err)
 		return echo.ErrNotFound

@@ -25,6 +25,9 @@ build:
 run: build
 	${BIN_FILE}
 
+runWithLocalConfig: build
+	${BIN_FILE} --config_file_path "custom_config.yaml"
+
 test:
 	go test ./... -cover -coverprofile=coverage.out -v
 	go tool cover -func=coverage.out

@@ -186,3 +186,26 @@ func (uc *UseCase) GetInfoOnPlace(cfg config.Config, placeId string, fields []st
 
 	return result.Result, nil
 }
+
+func (uc *UseCase) GetUserReaction(userId string, placeId string) (string, []string, error) {
+	placeUuid, err := uc.Repo.GetPlaceUuid(placeId)
+	if err != nil {
+		return "", nil, err
+	}
+
+	likeFlag, visitedFlag, err := uc.Repo.GetUserReaction(userId, placeUuid)
+	if err != nil {
+		return "", nil, err
+	}
+
+	s := []string{}
+	if likeFlag {
+		s = append(s, domain.ReactionLike)
+	}
+
+	if visitedFlag {
+		s = append(s, domain.ReactionVisited)
+	}
+
+	return placeUuid, s, nil
+}

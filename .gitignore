@@ -2,3 +2,4 @@
 bin
 coverage.out
 log
+custom_config.yaml
