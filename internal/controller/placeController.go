@@ -170,6 +170,7 @@ func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 		return echo.ErrNotFound
 	}
 
+	place.PlaceId = placeId
 	resBodyBytes := new(bytes.Buffer)
 	encoder := json.NewEncoder(resBodyBytes)
 	encoder.SetEscapeHTML(false)
