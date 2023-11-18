@@ -2,9 +2,15 @@ server:
   address: "0.0.0.0"
   port: "80"
 placesApi:
-  host: http://go-explore.online/proxy/maps/maps/api/
+  host: "@PROXY_URL@"
 logger:
   format: plain
   level: 6
   name: place
   output: ./log/places.log
+db:
+  url: "@DB_URL@"
+  port: "@DB_PORT@"
+  user: "@DB_USER@"
+  password: "@DB_PASSWORD@"
+  name: "@DB_NAME@"

@@ -23,11 +23,116 @@ jobs:
           mkdir build
           cp -r ./bin/ ./build/bin
 
+      #
+      # DEV config change
+      #
+
+      - name: Add proxy url config for dev
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@PROXY_URL@"
+          replace: ${{ secrets.DEV_PROXY_URL }}
+          include: configs/config.yaml
+      
+      - name: Add db url config for dev
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@DB_URL@"
+          replace: ${{ secrets.DEV_DB_URL }}
+          include: configs/config.yaml
+
+      - name: Add db port config for dev
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@DB_PORT@"
+          replace: ${{ secrets.DEV_DB_PORT }}
+          include: configs/config.yaml
+
+      - name: Add db user config for dev
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@DB_USER@"
+          replace: ${{ secrets.DEV_DB_USER }}
+          include: configs/config.yaml
+
+      - name: Add db password config for dev
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@DB_PASSWORD@"
+          replace: ${{ secrets.DEV_DB_PASSWORD }}
+          include: configs/config.yaml
+      
+      - name: Add db name config for dev
+        if: ${{ github.ref == 'refs/heads/dev' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@DB_NAME@"
+          replace: ${{ secrets.DEV_DB_NAME }}
+          include: configs/config.yaml
+
+      # Prod config change
+
+      - name: Add proxy url config for prod
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@PROXY_URL@"
+          replace: ${{ secrets.PROD_PROXY_URL }}
+          include: configs/config.yaml
+
+      - name: Add db url config for prod
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@DB_URL@"
+          replace: ${{ secrets.PROD_DB_URL }}
+          include: configs/config.yaml
+
+      - name: Add db port config for prod
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@DB_PORT@"
+          replace: ${{ secrets.PROD_DB_PORT }}
+          include: configs/config.yaml
+
+      - name: Add db user config for prod
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@DB_USER@"
+          replace: ${{ secrets.PROD_DB_USER }}
+          include: configs/config.yaml
+
+      - name: Add db password config for prod
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@DB_PASSWORD@"
+          replace: ${{ secrets.PROD_DB_PASSWORD }}
+          include: configs/config.yaml
+      
+      - name: Add db name config for prod
+        if: ${{ github.ref == 'refs/heads/master' }}
+        uses: jacobtomlinson/gha-find-replace@v3
+        with:
+          find: "@DB_NAME@"
+          replace: ${{ secrets.PROD_DB_NAME }}
+          include: configs/config.yaml
+
+      #
+      # End config change
+      #
+
       - name: Move extra files
         run: |
           mkdir ./build/configs
           cp ./configs/config.yaml ./build/configs/config.yaml
-          cp ./configs/config_prod.yaml ./build/configs/config_prod.yaml
           cp ./docker-compose.yml ./build
           cp ./Dockerfile ./build
 
@@ -136,15 +241,6 @@ jobs:
           target: "/home/ubuntu/places_rep"
           rm: true
           strip_components: 1
-
-      - name: Change config to prod one
-        uses: appleboy/ssh-action@v0.1.6
-        with:
-          host: ${{ secrets.PROD_HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SHH_PRIVATE_KEY }}
-          script: |
-            mv /home/ubuntu/places_rep/configs/config_prod.yaml /home/ubuntu/places_rep/configs/config.yaml
 
       - name: Connect and killing the app
         uses: appleboy/ssh-action@v0.1.6
