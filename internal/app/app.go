@@ -1,6 +1,8 @@
 package app
 
 import (
+	"context"
+	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -9,11 +11,14 @@ import (
 
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/controller"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/controller/handler"
+	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/repository"
+	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/repository/queries"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/usecase"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/pkg/config"
 	"github.com/labstack/echo/v4"
 
 	logger "github.com/FackOff25/GoToTeamGradGoLibs/logger"
+	"github.com/FackOff25/GoToTeamGradGoLibs/postgres"
 )
 
 func Run(configFilePath string) {
@@ -62,8 +67,19 @@ func Run(configFilePath string) {
 }
 
 func configureServer(cfg config.Config, e *echo.Echo) error {
+	ctx := context.Background()
+	pg, err := postgres.New(fmt.Sprintf(
+		"postgres://%s:%s@%s:%s/%s", cfg.DBuser, cfg.DBpassword, cfg.DBurl, cfg.DBport, cfg.DBname), ctx)
+	if err != nil {
+		return err
+	}
+	p, err := pg.Connect()
+	if err != nil {
+		return err
+	}
+	repo := repository.New(&queries.Queries{Ctx: ctx, Pool: *p}, ctx)
 
-	placesUsecase := usecase.UseCase{}
+	placesUsecase := usecase.UseCase{Repo: repo, Ctx: ctx}
 	placesController := controller.PlacesController{PlacesUsecase: placesUsecase, Config: cfg}
 
 	e.GET("/api/v1/places/list", placesController.CreatePlacesListHandler)

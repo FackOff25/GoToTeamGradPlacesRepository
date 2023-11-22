@@ -3,11 +3,14 @@ package controller
 import (
 	"bytes"
 	"encoding/json"
+	"html"
 	"net/http"
 	"strconv"
 
+	"github.com/jackc/pgx/v5"
 	log "github.com/sirupsen/logrus"
 
+	"github.com/FackOff25/GoToTeamGradGoLibs/categories"
 	"github.com/FackOff25/GoToTeamGradGoLibs/googleApi"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/domain"
 	"github.com/FackOff25/GoToTeamGradPlacesRepository/internal/usecase"
@@ -15,6 +18,8 @@ import (
 	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
+
+const uuidHeader = "X-Uuid"
 
 type GoogleParams struct {
 	Name                string
@@ -78,9 +83,7 @@ func (pc *PlacesController) CreatePlacesListHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, places)
 }
 
-func (pc *PlacesController) formPlaceInfo(result googleApi.Place) (domain.PlaceInfo, error) {
-	uuid, _ := uuid.NewUUID() //TODO: replace with actual uuid
-
+func (pc *PlacesController) formPlaceInfo(result googleApi.Place, placeId, userId string) (domain.PlaceInfo, error) {
 	location := domain.ApiLocation{
 		Lat: result.Geometry.Location.Lat,
 		Lng: result.Geometry.Location.Lng,
@@ -91,6 +94,22 @@ func (pc *PlacesController) formPlaceInfo(result googleApi.Place) (domain.PlaceI
 		reference := photoStruct.Reference
 		url := pc.Config.PlacesApiHost + "place/photo?maxwidth=" + strconv.FormatInt(photoStruct.Width, 10) + "&photo_reference=" + reference
 		photos = append(photos, url) //now the links return 403
+	}
+
+	var tags []string
+	tagsMap := categories.GetCategoriesMap()
+	for _, v := range result.Types {
+		tag, ok := tagsMap[v]
+		if ok {
+			tags = append(tags, tag)
+		}
+	}
+
+	var uuid string
+	var reactions []string
+	uuid, reactions, err := pc.PlacesUsecase.GetUserReaction(userId, placeId)
+	if err != nil && err != pgx.ErrNoRows {
+		log.Error("getting reaction from db error: ", err)
 	}
 
 	return domain.PlaceInfo{
@@ -104,11 +123,15 @@ func (pc *PlacesController) formPlaceInfo(result googleApi.Place) (domain.PlaceI
 		Address:      result.Address,
 		WorkingHours: result.OpeningHours.WeekTimetable,
 		Photos:       photos,
-		Tags:         result.Types,
+		Tags:         tags,
+		Reactions:    reactions,
 	}, nil
 }
+
 func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 	defer c.Request().Body.Close()
+
+	id := html.EscapeString(c.Request().Header.Get("X-UUID"))
 
 	if !c.QueryParams().Has("place_id") {
 		return echo.ErrBadRequest
@@ -141,12 +164,13 @@ func (pc *PlacesController) CreatePlaceInfoHandler(c echo.Context) error {
 		return echo.NewHTTPError(500, "INTERNAL")
 	}
 
-	place, err := pc.formPlaceInfo(placeInterface)
+	place, err := pc.formPlaceInfo(placeInterface, placeId, id)
 	if err != nil {
 		log.Errorf("Error getting info from googleApi: %s", err)
 		return echo.ErrNotFound
 	}
 
+	place.PlaceId = placeId
 	resBodyBytes := new(bytes.Buffer)
 	encoder := json.NewEncoder(resBodyBytes)
 	encoder.SetEscapeHTML(false)
