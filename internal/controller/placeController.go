@@ -59,13 +59,6 @@ func getGoogleParams() GoogleParams {
 	}
 }
 
-func getTags() map[string]string {
-	return map[string]string{
-		"tourist_attraction": "Для туристов",
-		"museum":             "Музей",
-	}
-}
-
 type PlacesController struct {
 	Config        config.Config
 	PlacesUsecase usecase.UseCase
